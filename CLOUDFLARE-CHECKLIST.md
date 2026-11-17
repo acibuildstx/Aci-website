@@ -15,9 +15,9 @@
 
 | Binding | Kind | Separate v2 resource |
 | --- | --- | --- |
-| `ACI_DB` | D1 database | `aci-db` (or another v2-only name; update TOML consistently). Replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` in `wrangler.toml` with its actual ID. |
-| `ACI_PUBLIC_BUCKET` | R2 bucket | `aci-portfolio-public`. **Keep bucket public access, r2.dev and public custom-domain serving disabled.** Published image access goes through `/api/public-media/…`; otherwise drafts would be exposed. |
-| `ACI_PRIVATE_BUCKET` | R2 bucket | `aci-private-vault`. **No public access or public custom domain.** Stores customer submissions and owner originals. |
+| `ACI_DB` | D1 database | `aci-v2-db` (or another v2-only name; update TOML consistently). Replace the placeholder UUID in `wrangler.toml` with the independently provisioned V2 database ID. |
+| `ACI_PUBLIC_BUCKET` | R2 bucket | `aci-v2-portfolio`. **Keep bucket public access, r2.dev and public custom-domain serving disabled.** Published image access goes through `/api/public-media/…`; otherwise drafts would be exposed. |
+| `ACI_PRIVATE_BUCKET` | R2 bucket | `aci-v2-client-uploads`. **No public access or public custom domain.** Stores customer submissions and owner originals. |
 
 Create separate preview resources if using previews; never point an untrusted preview at production customer data. Set the same binding names in each environment that will run Functions. If existing generic resource names belong to v1, choose new v2 names and IDs instead of reusing them.
 
@@ -27,7 +27,7 @@ Apply **the complete `schema.sql`** to the chosen v2 D1 database. It is additive
 npm ci
 npm test
 npm run build
-npx wrangler d1 execute aci-db --local --file=schema.sql
+npx wrangler d1 execute ACI_DB --local --file=schema.sql
 npm run dev
 ```
 
@@ -46,7 +46,7 @@ Configure separately for every intended Pages environment. Do not put secrets in
 | `ACCESS_AUD` | Variable | Exact Access application Audience (AUD) tag. If several owner path apps are used, comma-separate their exact tags. |
 | `OWNER_EMAILS` | Variable | Comma-separated email addresses authorized to own the portal and read customer attachments. Must match Access identities. |
 
-The D1 ID and Access audience are configuration identifiers, not API secrets. They are intentionally unspecified in this package. `PUBLIC_MEDIA_BASE_URL` is removed: serving the R2 bucket directly defeats draft controls. Keep the existing client `mediaBaseUrl` empty; reviewed browser code intentionally uses application-hosted paths only.
+The package supplies a local-only placeholder D1 ID and leaves the Access audience blank. Use the selected Cloudflare account and V2 project to set the real values before cloud deployment. `PUBLIC_MEDIA_BASE_URL` is removed: serving the R2 bucket directly defeats draft controls. Keep the existing client `mediaBaseUrl` empty; reviewed browser code intentionally uses application-hosted paths only.
 
 ## Cloudflare Access coverage
 
