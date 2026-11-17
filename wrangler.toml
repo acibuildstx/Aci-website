@@ -1,0 +1,23 @@
+name = "aci-website-v2"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "ACI_DB"
+database_name = "aci-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "ACI_PUBLIC_BUCKET"
+bucket_name = "aci-portfolio-public"
+
+[[r2_buckets]]
+binding = "ACI_PRIVATE_BUCKET"
+bucket_name = "aci-private-vault"
+
+[vars]
+ADMIN_NOTIFY_EMAIL = "acibuildstx@gmail.com"
+FROM_EMAIL = "" # Required: a sender on your verified Resend domain.
+ACCESS_ISSUER = "" # https://YOUR-TEAM.cloudflareaccess.com
+ACCESS_AUD = "" # Application Audience (AUD) tag; comma-separated if using several apps.
+OWNER_EMAILS = "" # Comma-separated authorized owner email addresses.

@@ -1,0 +1,467 @@
+{
+  "original_archive_sha256": "11bc3259984292cb654dcf0e876ecd04f623d96705480519c06dc901c13fa8ab",
+  "original_files": [
+    {
+      "file": "README-SETUP.md",
+      "original_sha256": "24474aeab01a53aecd79484751ef5657b635e37a28e56bbc20b670f0c721e1e7",
+      "reviewed_sha256": "317863609b6cbe45c0f748fdb103d25fc933a85349d4ad9a077454a2d7fb6ed2",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/admin/state.js",
+      "original_sha256": "52567fb4651e0d215af01c2361780d4ea2d1897e85df54a401406816ba33c646",
+      "reviewed_sha256": "d79d96ab90afeaedf4ab0f54b591b5cb44f974e40e8d0696155ef188d9c57861",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/admin/upload.js",
+      "original_sha256": "1aad936b49b76fcadfae2ca59c90028a83882a0e2e722e262c8e477ba7e5605c",
+      "reviewed_sha256": "9ce1a8bf3d24c86a9ff5df786bf7998c4be97e0af5b312b60e632b27b7339e9d",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/gallery.js",
+      "original_sha256": "ab5d4da4c3a0108eb5df3a20db7289b2e7b8c77ab04c24aefe72947a76d2a6d0",
+      "reviewed_sha256": "d55de65184f637b685bddd47e741bc424bd622f73d62ecf2ef2a89f68af4177e",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/media/[token].js",
+      "original_sha256": "a48a79a6a31e74a7ee5dfd0ae7738aea12cd3c21331eebddb19aeb475f37b742",
+      "reviewed_sha256": "26b6f562648d4455c4a02334c9c40a9f234f9274ee667d3cfc4ea49c96cae441",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/public-media/[[path]].js",
+      "original_sha256": "1ca111e0769a088f40f202781d327391225c1fb42921294376e248ba9d95fbc2",
+      "reviewed_sha256": "ab4c9c5c453a7fa9e34979bfc4621e62e52a2b1df5f8033cb8dcb2200238ac65",
+      "status": "repaired"
+    },
+    {
+      "file": "functions/api/submit-inquiry.js",
+      "original_sha256": "90214e6bfccab33bdb7f9b2f4996a6fb805752fc29d0ce12ea7ebc11f12f956d",
+      "reviewed_sha256": "8085d8716e4eb128892d0bca26b8237942e01edcec6acc0a33a4a6d646a10dfb",
+      "status": "repaired"
+    },
+    {
+      "file": "public/admin.html",
+      "original_sha256": "9d0016609c8fb6db9319fe697d9a05cf36afcee3fe1849ae6e9799a74ce55ccd",
+      "reviewed_sha256": "fdac96a6377b36c4521569640ff97408222f0a22bfc777ccd7ffc365337c6a41",
+      "status": "repaired"
+    },
+    {
+      "file": "public/assets/aci-logo.svg",
+      "original_sha256": "4ccff142b0cec8f8c94ddb0aaf561b4ec21d93681cbb88e78ebe261c5ebe30bf",
+      "reviewed_sha256": "4ccff142b0cec8f8c94ddb0aaf561b4ec21d93681cbb88e78ebe261c5ebe30bf",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/css/styles.css",
+      "original_sha256": "e1b2b3f80bae15ad49b4cab6fd02da13c257b5a628ba5521e6145df25dcd1159",
+      "reviewed_sha256": "d1b6c5fe291507bfef7cd771e98a6a60d2f697266665609edcefba2dc9504de4",
+      "status": "repaired"
+    },
+    {
+      "file": "public/css/tokens.css",
+      "original_sha256": "2c8d8f7fca6074e4a176bca00eb42efa922c5139585e79d33040df816df6c1e4",
+      "reviewed_sha256": "2c8d8f7fca6074e4a176bca00eb42efa922c5139585e79d33040df816df6c1e4",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/index.html",
+      "original_sha256": "cbda3a249e5c82a21ca0d4d59ae292f77264c9d63681b0914d37058548f31213",
+      "reviewed_sha256": "5064eae1bdf43f2094438fe4b47dde785843ed7b911d4a8ab97c216c065b866f",
+      "status": "repaired"
+    },
+    {
+      "file": "public/js/admin.js",
+      "original_sha256": "66cb80bc49e675dded2e0850e88c8ebfd62b9880e0a276f63a7f67fd0d97fc0a",
+      "reviewed_sha256": "2ac063f5b18cf98733691359436f702dcfc2eefa24edd500688c4973f30bf7c8",
+      "status": "repaired"
+    },
+    {
+      "file": "public/js/app.js",
+      "original_sha256": "3f87f2574f960e480c20d5e6090a969ece2c6fdac378f8e7f345fb0a4490db85",
+      "reviewed_sha256": "89bb71c16e94388b1b97395ea8795c622d01bac540b682476be1c9dd672821e9",
+      "status": "repaired"
+    },
+    {
+      "file": "public/js/site-config.js",
+      "original_sha256": "86cd0c34f65c72742b25de865d4b5cf8c556d95d09dac62f33d124d9bf6120b8",
+      "reviewed_sha256": "86cd0c34f65c72742b25de865d4b5cf8c556d95d09dac62f33d124d9bf6120b8",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/1.webp",
+      "original_sha256": "c32cb8f7467f81cecb881b1625f2b271534fb86dbda96331f0c4649280d9657d",
+      "reviewed_sha256": "c32cb8f7467f81cecb881b1625f2b271534fb86dbda96331f0c4649280d9657d",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/2.webp",
+      "original_sha256": "a51163020fae1eb6e9901faea7e9fb881891563412607f56ae26b1f49d78e00c",
+      "reviewed_sha256": "a51163020fae1eb6e9901faea7e9fb881891563412607f56ae26b1f49d78e00c",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/3.webp",
+      "original_sha256": "6b017430c42e6bfd9301eb747b66491f5d2a29fc611e92b9fc913d50381b5c71",
+      "reviewed_sha256": "6b017430c42e6bfd9301eb747b66491f5d2a29fc611e92b9fc913d50381b5c71",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/4.webp",
+      "original_sha256": "65f03658cc5d3153a37f80efdee9ad6eb480dd4d19778cf3544b307052475a9a",
+      "reviewed_sha256": "65f03658cc5d3153a37f80efdee9ad6eb480dd4d19778cf3544b307052475a9a",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/5.webp",
+      "original_sha256": "b5057452ec92ab8bd1e2f1b69d4aa8afe2e16803627b151f6b48bc28422e86d3",
+      "reviewed_sha256": "b5057452ec92ab8bd1e2f1b69d4aa8afe2e16803627b151f6b48bc28422e86d3",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/bathrooms/cover.webp",
+      "original_sha256": "c32cb8f7467f81cecb881b1625f2b271534fb86dbda96331f0c4649280d9657d",
+      "reviewed_sha256": "c32cb8f7467f81cecb881b1625f2b271534fb86dbda96331f0c4649280d9657d",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/cabinetry/1.webp",
+      "original_sha256": "9910ddf9e2298523a7892589a2a44da81de9913056e586dde63e91c2eb23c2c1",
+      "reviewed_sha256": "9910ddf9e2298523a7892589a2a44da81de9913056e586dde63e91c2eb23c2c1",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/cabinetry/2.webp",
+      "original_sha256": "9f07693845299188e69a871f42b482a0188bea23618eae6785616f3aee4c576a",
+      "reviewed_sha256": "9f07693845299188e69a871f42b482a0188bea23618eae6785616f3aee4c576a",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/cabinetry/3.webp",
+      "original_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "reviewed_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/cabinetry/cover.webp",
+      "original_sha256": "9910ddf9e2298523a7892589a2a44da81de9913056e586dde63e91c2eb23c2c1",
+      "reviewed_sha256": "9910ddf9e2298523a7892589a2a44da81de9913056e586dde63e91c2eb23c2c1",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/1.webp",
+      "original_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "reviewed_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/2.webp",
+      "original_sha256": "3fa8a77b15f749f21080002fecb156c95eccfede21a67bf88ce6cd15342934ed",
+      "reviewed_sha256": "3fa8a77b15f749f21080002fecb156c95eccfede21a67bf88ce6cd15342934ed",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/3.webp",
+      "original_sha256": "7f88625ecb8c0a097658bc274f0fe53d556bbaadf725630901f4f53a4168d3ee",
+      "reviewed_sha256": "7f88625ecb8c0a097658bc274f0fe53d556bbaadf725630901f4f53a4168d3ee",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/4.webp",
+      "original_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "reviewed_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/5.webp",
+      "original_sha256": "6f2d4d9c43acc93d8d2001ddbe5c2491ef6918083963db2895f80e961e1286a8",
+      "reviewed_sha256": "6f2d4d9c43acc93d8d2001ddbe5c2491ef6918083963db2895f80e961e1286a8",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/carpentry/cover.webp",
+      "original_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "reviewed_sha256": "fa2fab7a5c9f001f0aee62dbc8761559252f72cfc7e722e78785b16f6b0f35e9",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/decks/1.webp",
+      "original_sha256": "2889409040fddc25cf80d060aae08abc5db1b535978169b9d70d95b1ba6f4a45",
+      "reviewed_sha256": "2889409040fddc25cf80d060aae08abc5db1b535978169b9d70d95b1ba6f4a45",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/decks/2.webp",
+      "original_sha256": "3fa8a77b15f749f21080002fecb156c95eccfede21a67bf88ce6cd15342934ed",
+      "reviewed_sha256": "3fa8a77b15f749f21080002fecb156c95eccfede21a67bf88ce6cd15342934ed",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/decks/3.webp",
+      "original_sha256": "7f88625ecb8c0a097658bc274f0fe53d556bbaadf725630901f4f53a4168d3ee",
+      "reviewed_sha256": "7f88625ecb8c0a097658bc274f0fe53d556bbaadf725630901f4f53a4168d3ee",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/decks/4.webp",
+      "original_sha256": "5613e87ee8bcf9e767b8255188892da39202994ff1e2ebc21bb61fbb144b7089",
+      "reviewed_sha256": "5613e87ee8bcf9e767b8255188892da39202994ff1e2ebc21bb61fbb144b7089",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/decks/cover.webp",
+      "original_sha256": "2889409040fddc25cf80d060aae08abc5db1b535978169b9d70d95b1ba6f4a45",
+      "reviewed_sha256": "2889409040fddc25cf80d060aae08abc5db1b535978169b9d70d95b1ba6f4a45",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/fences/1.webp",
+      "original_sha256": "a5d09c7d62e9936ed9019fbeaeb0b7bbe00215b110a6e424bb0f93c3380b7d56",
+      "reviewed_sha256": "a5d09c7d62e9936ed9019fbeaeb0b7bbe00215b110a6e424bb0f93c3380b7d56",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/fences/2.webp",
+      "original_sha256": "8c561f5123b01059ec8b4764cabf1953b06095f09f11769908e85d701b55d3f7",
+      "reviewed_sha256": "8c561f5123b01059ec8b4764cabf1953b06095f09f11769908e85d701b55d3f7",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/fences/3.webp",
+      "original_sha256": "5eef25b84ab0c05c65c474b1aab2837ca9cf3bbe1e9b278f87d688f26a2fce92",
+      "reviewed_sha256": "5eef25b84ab0c05c65c474b1aab2837ca9cf3bbe1e9b278f87d688f26a2fce92",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/fences/4.webp",
+      "original_sha256": "9c909d22400db0c526812ac41e2a9c831303c6539747b949970c855a32160d66",
+      "reviewed_sha256": "9c909d22400db0c526812ac41e2a9c831303c6539747b949970c855a32160d66",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/fences/cover.webp",
+      "original_sha256": "a5d09c7d62e9936ed9019fbeaeb0b7bbe00215b110a6e424bb0f93c3380b7d56",
+      "reviewed_sha256": "a5d09c7d62e9936ed9019fbeaeb0b7bbe00215b110a6e424bb0f93c3380b7d56",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/1.webp",
+      "original_sha256": "6dcc78df70ad2310fad6a36483ca4d750db97ef936c08fc5ff9be0d97814385a",
+      "reviewed_sha256": "6dcc78df70ad2310fad6a36483ca4d750db97ef936c08fc5ff9be0d97814385a",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/2.webp",
+      "original_sha256": "f6fe93a144337fc639a26a463fababa0d8cee3e3d2603ed6a5c0d690fee67682",
+      "reviewed_sha256": "f6fe93a144337fc639a26a463fababa0d8cee3e3d2603ed6a5c0d690fee67682",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/3.webp",
+      "original_sha256": "115921bec497ae304841cbbce595b2f00f52cc10120d8a06b58be49b0091e485",
+      "reviewed_sha256": "115921bec497ae304841cbbce595b2f00f52cc10120d8a06b58be49b0091e485",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/4.webp",
+      "original_sha256": "8d55119c9b69650e2b9a58ee9b782d57fc9a9a47cc788c4d4aa0d463b5e51ff1",
+      "reviewed_sha256": "8d55119c9b69650e2b9a58ee9b782d57fc9a9a47cc788c4d4aa0d463b5e51ff1",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/5.webp",
+      "original_sha256": "3f7392b6c2db997503ddf724cca93111e1698604349fc2d372a214de73cc2349",
+      "reviewed_sha256": "3f7392b6c2db997503ddf724cca93111e1698604349fc2d372a214de73cc2349",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/flooring-tile/cover.webp",
+      "original_sha256": "6dcc78df70ad2310fad6a36483ca4d750db97ef936c08fc5ff9be0d97814385a",
+      "reviewed_sha256": "6dcc78df70ad2310fad6a36483ca4d750db97ef936c08fc5ff9be0d97814385a",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/kitchens/1.webp",
+      "original_sha256": "57ec397bb67e739b243beaa84a50927c8f01c96e6e17ea62b9a5fc077e2491b1",
+      "reviewed_sha256": "57ec397bb67e739b243beaa84a50927c8f01c96e6e17ea62b9a5fc077e2491b1",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/kitchens/2.webp",
+      "original_sha256": "1d0cf61fb626878ff4eff703c851281a4ee53cab861ae136ecc7113d8a179798",
+      "reviewed_sha256": "1d0cf61fb626878ff4eff703c851281a4ee53cab861ae136ecc7113d8a179798",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/kitchens/cover.webp",
+      "original_sha256": "57ec397bb67e739b243beaa84a50927c8f01c96e6e17ea62b9a5fc077e2491b1",
+      "reviewed_sha256": "57ec397bb67e739b243beaa84a50927c8f01c96e6e17ea62b9a5fc077e2491b1",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/painting/1.webp",
+      "original_sha256": "5d8e28bb879b75db87836dd4c953fe9a34ce1b19fa4fd9fc939e931fadd2b9af",
+      "reviewed_sha256": "5d8e28bb879b75db87836dd4c953fe9a34ce1b19fa4fd9fc939e931fadd2b9af",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/painting/2.webp",
+      "original_sha256": "4c60a362753296e0aa52db4a323ea50de6432881f14f37cb57b8433db2b43c96",
+      "reviewed_sha256": "4c60a362753296e0aa52db4a323ea50de6432881f14f37cb57b8433db2b43c96",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/painting/3.webp",
+      "original_sha256": "1245207f89fd9ae66fe512f57dd0f282dd7e380639fbbc0ba490cc69217d69a2",
+      "reviewed_sha256": "1245207f89fd9ae66fe512f57dd0f282dd7e380639fbbc0ba490cc69217d69a2",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/painting/cover.webp",
+      "original_sha256": "5d8e28bb879b75db87836dd4c953fe9a34ce1b19fa4fd9fc939e931fadd2b9af",
+      "reviewed_sha256": "5d8e28bb879b75db87836dd4c953fe9a34ce1b19fa4fd9fc939e931fadd2b9af",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/patios/1.webp",
+      "original_sha256": "4d6efa0ce08e922e8290b36db352d8712ab2f097c5fed7e2f04282bb8a7ed3a4",
+      "reviewed_sha256": "4d6efa0ce08e922e8290b36db352d8712ab2f097c5fed7e2f04282bb8a7ed3a4",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/patios/2.webp",
+      "original_sha256": "ae247b08a7497dd82d4403782685462e3f5cc486a972dc4cec70f0fcd943c9a6",
+      "reviewed_sha256": "ae247b08a7497dd82d4403782685462e3f5cc486a972dc4cec70f0fcd943c9a6",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/patios/3.webp",
+      "original_sha256": "08fe24f5d0b066d1dbc315ec44ab0e6822d8ac1efe397cbf380b4c1c191dc52a",
+      "reviewed_sha256": "08fe24f5d0b066d1dbc315ec44ab0e6822d8ac1efe397cbf380b4c1c191dc52a",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/patios/cover.webp",
+      "original_sha256": "4d6efa0ce08e922e8290b36db352d8712ab2f097c5fed7e2f04282bb8a7ed3a4",
+      "reviewed_sha256": "4d6efa0ce08e922e8290b36db352d8712ab2f097c5fed7e2f04282bb8a7ed3a4",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/1.webp",
+      "original_sha256": "77abe5a50211a10cff84ba1c010cc8f521785a0883e5f164e6dede6444e0bc22",
+      "reviewed_sha256": "77abe5a50211a10cff84ba1c010cc8f521785a0883e5f164e6dede6444e0bc22",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/2.webp",
+      "original_sha256": "6a4fa64e22e9b69ef8643d10ec91de17b9f2d67b383304cbd71ebcc8aea4abbd",
+      "reviewed_sha256": "6a4fa64e22e9b69ef8643d10ec91de17b9f2d67b383304cbd71ebcc8aea4abbd",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/3.webp",
+      "original_sha256": "a3814d281ff8224e97d694d5d78d0a155c841ff0a7ebc0680b48350714630ab4",
+      "reviewed_sha256": "a3814d281ff8224e97d694d5d78d0a155c841ff0a7ebc0680b48350714630ab4",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/4.webp",
+      "original_sha256": "7e78375f671753817fdc8348944004e62c871119f82cb53ae6962aafbff3cbda",
+      "reviewed_sha256": "7e78375f671753817fdc8348944004e62c871119f82cb53ae6962aafbff3cbda",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/5.webp",
+      "original_sha256": "367f958f0f5c851d636e462e76e04ded5ada15ce9e2ebec41fac9e134bc0a7f6",
+      "reviewed_sha256": "367f958f0f5c851d636e462e76e04ded5ada15ce9e2ebec41fac9e134bc0a7f6",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/property-maintenance/cover.webp",
+      "original_sha256": "77abe5a50211a10cff84ba1c010cc8f521785a0883e5f164e6dede6444e0bc22",
+      "reviewed_sha256": "77abe5a50211a10cff84ba1c010cc8f521785a0883e5f164e6dede6444e0bc22",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/1.webp",
+      "original_sha256": "dac0f3db2ddab2274b7c3f8ec4d7855738b578d4a7e51e448f4fc8293f6ed393",
+      "reviewed_sha256": "dac0f3db2ddab2274b7c3f8ec4d7855738b578d4a7e51e448f4fc8293f6ed393",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/2.webp",
+      "original_sha256": "f9981638d77d0659a461897b8ac2f729ec8fb7d56085fd4ba34c17e9dbea51c8",
+      "reviewed_sha256": "f9981638d77d0659a461897b8ac2f729ec8fb7d56085fd4ba34c17e9dbea51c8",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/3.webp",
+      "original_sha256": "9f1dd9705a0570e8b4ef2e5efa036acc7d8b6265302853dd4cd2d94c383408e2",
+      "reviewed_sha256": "9f1dd9705a0570e8b4ef2e5efa036acc7d8b6265302853dd4cd2d94c383408e2",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/4.webp",
+      "original_sha256": "ec80739f637a0b6d01ec5413cba11fd90f20a8c2614508ec7a362afe27d2e3d7",
+      "reviewed_sha256": "ec80739f637a0b6d01ec5413cba11fd90f20a8c2614508ec7a362afe27d2e3d7",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/5.webp",
+      "original_sha256": "104cc29305166b4efa8de8ca4b5b1e50ac55fda0105afbcb3f700c22ccace457",
+      "reviewed_sha256": "104cc29305166b4efa8de8ca4b5b1e50ac55fda0105afbcb3f700c22ccace457",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/6.webp",
+      "original_sha256": "a918bc41500813eda9471bc90812668276906d10f454edf7ea8fe04dbc0a91f3",
+      "reviewed_sha256": "a918bc41500813eda9471bc90812668276906d10f454edf7ea8fe04dbc0a91f3",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/renovations/cover.webp",
+      "original_sha256": "dac0f3db2ddab2274b7c3f8ec4d7855738b578d4a7e51e448f4fc8293f6ed393",
+      "reviewed_sha256": "dac0f3db2ddab2274b7c3f8ec4d7855738b578d4a7e51e448f4fc8293f6ed393",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/windows-doors/1.webp",
+      "original_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "reviewed_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/windows-doors/2.webp",
+      "original_sha256": "5a16d80af4c58986138cf4e54f35ca2be91b4a0bdda5fc1e8f0f96add895221b",
+      "reviewed_sha256": "5a16d80af4c58986138cf4e54f35ca2be91b4a0bdda5fc1e8f0f96add895221b",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/windows-doors/3.webp",
+      "original_sha256": "7d1eee8996b3abbc3410abd1f54f84eb15fc0e69bfe4f807770bb1a28451586f",
+      "reviewed_sha256": "7d1eee8996b3abbc3410abd1f54f84eb15fc0e69bfe4f807770bb1a28451586f",
+      "status": "unchanged"
+    },
+    {
+      "file": "public/photos/windows-doors/cover.webp",
+      "original_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "reviewed_sha256": "7da81612e46cd28790051772d6099c1ad69c56006d5873f713f99c81270d3596",
+      "status": "unchanged"
+    },
+    {
+      "file": "schema.sql",
+      "original_sha256": "8cc95cff1b2d1fdd800da24683115969c6c6147ed3b59a725d6fe0e1b0bd5463",
+      "reviewed_sha256": "30a1f56a1130a8b4470c39e183be71c1a82ae033a485e89c8c164d7147c4245d",
+      "status": "repaired"
+    },
+    {
+      "file": "wrangler.toml",
+      "original_sha256": "19200d42357d49293b0794c233f918f1f7967f2bb045ab7a53d7ee8c150e81b9",
+      "reviewed_sha256": "629971ab0d02e9934168d83cff323c2e5603effe29a2093049772810743c0c0a",
+      "status": "repaired"
+    }
+  ]
+}
