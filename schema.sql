@@ -1,7 +1,7 @@
 -- Cloudflare D1 Schema for Absolute Custom Installations (ACI) v2.0
 
 CREATE TABLE IF NOT EXISTS gallery_state (
-  id TEXT PRIMARY KEY, -- 'draft' or 'published'
+  id TEXT PRIMARY KEY, -- Versioned draft or published gallery ID
   payload TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );

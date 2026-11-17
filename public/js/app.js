@@ -58,9 +58,9 @@
       const res = await fetch("/api/gallery");
       if (res.ok) {
         const data = await res.json();
-        initialized = data.initialized === true;
-        if (Array.isArray(data.categories) && initialized) {
-          categories = data.categories.filter(c => c.visible);
+        if (Array.isArray(data.categories) && data.initialized === true) {
+          initialized = true;
+          categories = data.categories.filter(c => c.visible && c.photos?.length);
           if (data.heroImage) {
             const heroImg = document.getElementById("heroImg");
             if (heroImg) heroImg.src = resolveMediaUrl(data.heroImage);
@@ -71,7 +71,7 @@
       // Fallback to starter config if D1 is not yet bound
     }
     if (!initialized) {
-      categories = cfg.starterCategories.filter(c => c.visible);
+      categories = cfg.starterCategories.filter(c => c.visible && c.photos.length);
     }
     if (categories.length && !categories.some(c => c.slug === activeSlug)) {
       activeSlug = categories[0].slug;
@@ -127,7 +127,8 @@
     // The owner's three preferred images should be first in each photos array.
     const photoLimits = {
       "property-maintenance": 8,
-      "flooring-tile": 10, // Current combined flooring/tile gallery; split on owner approval.
+      "flooring": 10,
+      "tile": 10,
       "renovations": 7
     };
     const photoLimit = photoLimits[cat.slug] ?? 5;
@@ -142,9 +143,8 @@
       return;
     }
 
-    // The owner-approved before/after gallery displays the two stages side by side.
-    // Each numbered pair counts as one project card, and opens the larger comparison.
-    if (cat.slug === "before-after") {
+    // Show both stages together when every featured photo has a matching before image.
+    if (cat.slug === "before-after" && featuredPhotos.every(photo => photo.before_url)) {
       grid.classList.add("ba-gallery");
       grid.innerHTML = featuredPhotos.map((photo, idx) => `
         <figure tabindex="0" role="button" class="photo-card ba-pair-card" data-photo-idx="${idx}" style="margin:0;">
@@ -152,7 +152,6 @@
             <div><span>Before</span><img src="${resolveMediaUrl(photo.before_url)}" alt="Before: ${esc(photo.caption || cat.name)}" loading="lazy" /></div>
             <div><span>${idx === 3 ? "Progress" : "After"}</span><img src="${resolveMediaUrl(photo.url)}" alt="${idx === 3 ? "Progress" : "After"}: ${esc(photo.caption || cat.name)}" loading="lazy" /></div>
           </div>
-          <figcaption class="photo-card-caption"><span>${esc(photo.caption || cat.name)}</span><span aria-hidden="true">↗</span></figcaption>
         </figure>
       `).join("");
       grid.querySelectorAll(".photo-card").forEach(card => {
@@ -168,10 +167,6 @@
           <img src="${resolveMediaUrl(photo.url)}" alt="${esc(photo.caption || cat.name)}" loading="lazy" />
           ${photo.before_url ? `<span class="ba-badge">Before &amp; After</span>` : ""}
         </div>
-        <figcaption class="photo-card-caption">
-          <span>${esc(photo.caption || cat.name)}</span>
-          <span aria-hidden="true">↗</span>
-        </figcaption>
       </figure>
     `).join("");
 
@@ -206,7 +201,7 @@
       media.innerHTML = `<img src="${resolveMediaUrl(photo.url)}" alt="${esc(photo.caption || categoryName)}" />`;
     }
 
-    cap.textContent = `${categoryName} — ${photo.caption || ""}`;
+    cap.textContent = categoryName;
     lb.hidden = false;
     lastFocus = document.activeElement;
     document.getElementById("lightboxClose").focus();

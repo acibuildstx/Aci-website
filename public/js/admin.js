@@ -248,7 +248,7 @@
       const res = await fetch("/api/admin/state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, categories: state, heroImage })
+        body: JSON.stringify({ mode, categories: state, heroImage, revision: window.ACI_CONFIG.galleryRevision })
       });
       const result = await res.json();
       if (!res.ok || !result.ok) throw new Error(result.error || "Server save failed");

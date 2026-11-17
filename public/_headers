@@ -10,3 +10,7 @@
 /admin.html
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow
+/photos/*
+  Cache-Control: public, max-age=0, must-revalidate
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate

@@ -10,6 +10,7 @@ import { onRequestGet as gallery } from '../functions/api/gallery.js';
 import { onRequestPost as upload } from '../functions/api/admin/upload.js';
 import { onRequestGet as privateMedia } from '../functions/api/media/[token].js';
 import { onRequestGet as publicMedia } from '../functions/api/public-media/[[path]].js';
+import { GALLERY_REVISION } from '../lib/gallery.js';
 import { requireOwner, validateFile } from '../lib/security.js';
 const schema = readFileSync(new URL('../schema.sql', import.meta.url), 'utf8');
 function database() {
@@ -26,7 +27,7 @@ function env() { return { ACI_DB: database(), ACI_PRIVATE_BUCKET: bucket(), ACI_
 function form(overrides = {}, files = []) { const f=new FormData(); for (const [k,v] of Object.entries({name:'Jane <b>Doe</b>',phone:'409-919-0038',email:'jane@example.com',location:'Galveston',service:'Repair',propertyType:'Residential',description:'Fix <script>bad()</script>',...overrides})) f.set(k,v); for (const file of files) f.append('files',file); return f; }
 const request = (path, body, headers = {}) => new Request(`https://aci.test${path}`, { method: body ? 'POST' : 'GET', body, headers });
 const run = (fn, request, env, params={}) => middleware({ request, env, next: () => fn({ request, env, params }) });
-const image = () => new File([readFileSync(new URL('../public/photos/kitchens/cover.webp', import.meta.url))], 'photo.webp', { type:'image/webp' });
+const image = () => new File([readFileSync(new URL('../public/photos/kitchens/kitchen-cover.webp', import.meta.url))], 'photo.webp', { type:'image/webp' });
 
 test('owner routes fail closed with missing configuration or unsigned headers', async () => {
  for (const path of ['/admin','/admin/','/admin.html','/api/admin/state','/api/admin/upload','/api/media/'+'a'.repeat(32)]) {
@@ -79,13 +80,27 @@ test('shared rate counter rejects attempt six', async () => {
 test('oversized body rejected before parsing', async () => {
  const r=await run(submit,request('/api/submit-inquiry','x',{'Content-Length':String(100*1024*1024)}),env());assert.equal(r.status,413);
 });
-const categories=[{slug:'kitchens',name:'Kitchen <img src=x onerror=bad()>',visible:true,photos:[{url:'photos/kitchens/cover.webp',caption:'Quote " & <script>',is_cover:true}]},{slug:'hidden',name:'Hidden',visible:false,photos:[]}];
+const categories=[{slug:'kitchens',name:'Kitchen <img src=x onerror=bad()>',visible:true,photos:[{url:'photos/kitchens/kitchen-cover.webp',caption:'Quote " & <script>',is_cover:true}]},{slug:'hidden',name:'Hidden',visible:false,photos:[]}];
 test('gallery draft isolated, publish atomic, hidden categories filtered, empty publication retained', async () => {
- const e=env();const post=mode=>save({env:e,request:request('/api/admin/state',JSON.stringify({mode,categories,heroImage:'photos/kitchens/cover.webp'}))});
+ const e=env();const post=mode=>save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode,categories,heroImage:'photos/kitchens/kitchen-cover.webp'}))});
  await post('draft');assert.equal((await (await gallery({env:e})).json()).initialized,false);assert.equal((await (await state({env:e})).json()).categories.length,2);
  await post('publish');assert.equal((await (await gallery({env:e})).json()).categories.length,1);
- await save({env:e,request:request('/api/admin/state',JSON.stringify({mode:'publish',categories:[],heroImage:null}))});assert.deepEqual((await (await gallery({env:e})).json()).categories,[]);
- const bad=structuredClone(categories);bad[0].photos[0].url='javascript:alert(1)';await assert.rejects(save({env:e,request:request('/api/admin/state',JSON.stringify({mode:'publish',categories:bad,heroImage:null}))}));
+ await save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:[],heroImage:null}))});assert.deepEqual((await (await gallery({env:e})).json()).categories,[]);
+ const bad=structuredClone(categories);bad[0].photos[0].url='javascript:alert(1)';await assert.rejects(save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:bad,heroImage:null}))}));
+});
+test('legacy gallery rows and stale portal saves cannot override the reviewed gallery', async () => {
+ const e = env();
+ const insert = e.ACI_DB.db.prepare('INSERT INTO gallery_state (id, payload, updated_at) VALUES (?, ?, ?)');
+ const legacy = JSON.stringify({ categories, heroImage: 'photos/kitchens/cover.webp' });
+ insert.run('draft', legacy, '2026-01-01');
+ insert.run('published', legacy, '2026-01-01');
+ assert.equal((await (await gallery({ env: e })).json()).initialized, false);
+ assert.equal((await (await state({ env: e })).json()).initialized, false);
+ await assert.rejects(
+  save({ env: e, request: request('/api/admin/state', JSON.stringify({ mode: 'publish', categories, heroImage: null })) }),
+  error => error.status === 409
+ );
+ assert.equal(e.ACI_DB.db.prepare('SELECT COUNT(*) AS count FROM gallery_state').get().count, 2);
 });
 test('private attachment requires auth at middleware; expiry and unsafe names handled safely',async()=>{
  const e=env();await run(submit,request('/api/submit-inquiry',form({},[image()])),e);const row=e.ACI_DB.db.prepare('SELECT * FROM private_media_tokens').get();
@@ -98,7 +113,7 @@ test('unpublished R2 photo denied; only published photo becomes public, original
  const e=env();const key='portfolio/kitchens/abc.webp',url='/api/public-media/'+key;await e.ACI_PUBLIC_BUCKET.put(key,new Uint8Array([1,2]));
  await assert.rejects(publicMedia({env:e,request:request(url),params:{path:key}}),err=>err.status===503);
  const c=structuredClone(categories);c[0].photos[0].url=url;
- await save({env:e,request:request('/api/admin/state',JSON.stringify({mode:'publish',categories:c,heroImage:null}))});assert.equal((await publicMedia({env:e,request:request(url),params:{path:key}})).status,200);
+ await save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:c,heroImage:null}))});assert.equal((await publicMedia({env:e,request:request(url),params:{path:key}})).status,200);
  await assert.rejects(publicMedia({env:e,request:request(url),params:{path:'originals/private.jpg'}}),err=>err.status===404);
 });
 test('admin upload validates bytes and rolls back failed R2 write',async()=>{

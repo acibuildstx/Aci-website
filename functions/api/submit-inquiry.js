@@ -19,7 +19,7 @@ export async function onRequestPost({ request, env }) {
   }
   const { name, phone, email, location, service, propertyType, description } = fields;
   if (!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email) || !/^[+\d\s().-]{7,40}$/.test(phone) || phone.replace(/\D/g, '').length < 7) throw new HttpError(400, 'Please provide a valid phone number and email address.');
-  if (!['Repair','Remodel','Renovate','Property Management','Other'].includes(service) || !['Residential','Commercial','Rental / Managed Property'].includes(propertyType)) throw new HttpError(400, 'Please select a valid service and property type.');
+  if (!['Repair','Remodel','Renovate','Property Maintenance & Rental Services','Property Management','Other'].includes(service) || !['Residential','Commercial','Rental / Managed Property'].includes(propertyType)) throw new HttpError(400, 'Please select a valid service and property type.');
   const files = fd.getAll('files').filter(f => typeof f !== 'string' && f.size > 0);
   if (files.length > 5) throw new HttpError(400, 'Maximum 5 attachments allowed.');
   if (files.reduce((n, f) => n + f.size, 0) > 30 * 1024 * 1024) throw new HttpError(413, 'Please keep all attachments together below 30MB.');
