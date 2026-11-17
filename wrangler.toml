@@ -4,15 +4,15 @@ pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "ACI_DB"
-database_name = "aci-v2-db"
-database_id = "00000000-0000-4000-8000-000000000000" # Replace with the independently provisioned V2 D1 ID before cloud use.
+database_name = "aci-website"
+database_id = "f8e3433c-391a-4eb7-9a1f-de6d7447883c"
 [[r2_buckets]]
 binding = "ACI_PUBLIC_BUCKET"
-bucket_name = "aci-v2-portfolio"
+bucket_name = "aci-portfolio-public"
 
 [[r2_buckets]]
 binding = "ACI_PRIVATE_BUCKET"
-bucket_name = "aci-v2-client-uploads"
+bucket_name = "aci-client-uploads"
 
 [vars]
 ADMIN_NOTIFY_EMAIL = "acibuildstx@gmail.com"
