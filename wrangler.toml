@@ -12,7 +12,7 @@ bucket_name = "aci-portfolio-public"
 
 [[r2_buckets]]
 binding = "ACI_PRIVATE_BUCKET"
-bucket_name = "aci-private-vault"
+bucket_name = "aci-client-upload"
 
 [vars]
 ADMIN_NOTIFY_EMAIL = "acibuildstx@gmail.com"
