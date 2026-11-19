@@ -382,10 +382,11 @@
         form.reset();
         selectedFiles = [];
         renderFileList();
-        const notice = result.notification === "accepted"
-          ? "Your service request and files have been saved. The email provider accepted the notification; delivery is not yet confirmed."
-          : "Your service request and files have been saved, but the email notification failed or could not be confirmed. Please call 409-919-0038 and quote your reference.";
-        showFeedback(`${notice} Reference: ${result.inquiryId}`, result.notification === "accepted" ? "success" : "error");
+        if (result.notification === "accepted") {
+          showFeedback("Thanks! Your request has been received.", "success");
+        } else {
+          showFeedback(`Your service request and files have been saved, but the email notification failed or could not be confirmed. Please call 409-919-0038 and quote your reference. Reference: ${result.inquiryId}`, "error");
+        }
       } catch (err) {
         showFeedback(err.message, "error");
       } finally {
