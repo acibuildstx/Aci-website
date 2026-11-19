@@ -37,7 +37,7 @@
           </ul>
         </div>
         <a href="#contact" class="btn btn-outline-gold btn-sm" data-preset-service="${svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}">
-          REQUEST ${svc.title}
+          REQUEST ${svc.id === "renovate" ? "RENOVATION" : svc.title}
         </a>
       </article>
     `).join("");
