@@ -15,6 +15,7 @@ binding = "ACI_PRIVATE_BUCKET"
 bucket_name = "aci-client-uploads"
 
 [vars]
+# After updating Pages secrets, redeploy to apply them to the running Functions.
 # Optional simple owner login: add OWNER_PASSWORD as an encrypted Pages secret
 # (16+ characters). Username: owner. Leave the three Access values below empty.
 # Never put the password in this file. Existing Access configurations take priority.
