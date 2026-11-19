@@ -61,8 +61,8 @@ window.ACI_CONFIG = {
   ],
 
   propertyManagement: {
-    title: "PROPERTY MAINTENANCE & RENTAL SERVICES",
-    body: "ACI works with property owners and investors on punch lists, make-readies, rental repairs, renovations, and ongoing maintenance.",
+    title: "PROPERTY MAINTENANCE",
+    body: "ACI works with property owners, managers, and investors on punch lists, make-readies, rental turnovers, and ongoing property maintenance and repairs.",
     tagline: "Practical solutions. Quality workmanship. One dependable contractor.",
     ctaLabel: "REQUEST PROPERTY SERVICES"
   },
