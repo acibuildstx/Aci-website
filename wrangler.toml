@@ -16,7 +16,7 @@ bucket_name = "aci-client-uploads"
 
 [vars]
 ADMIN_NOTIFY_EMAIL = "acibuildstx@gmail.com"
-FROM_EMAIL = "" # Required: a sender on your verified Resend domain.
+FROM_EMAIL = "notifications@acibuildstx.com" # Sender on the verified Resend domain.
 ACCESS_ISSUER = "" # https://YOUR-TEAM.cloudflareaccess.com
 ACCESS_AUD = "" # Application Audience (AUD) tag; comma-separated if using several apps.
 OWNER_EMAILS = "" # Comma-separated authorized owner email addresses.
