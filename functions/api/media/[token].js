@@ -1,6 +1,6 @@
 import { HttpError } from '../../../lib/security.js';
 export async function onRequestGet({ params, env }) {
-  // Root middleware requires a verified, allowlisted owner Access JWT.
+  // Root middleware requires owner authentication before any customer file lookup.
   if (!env.ACI_DB || !env.ACI_PRIVATE_BUCKET) throw new HttpError(503, 'Storage is not configured.');
   const token = String(params.token || '');
   if (!/^[a-f0-9]{32}$/.test(token)) throw new HttpError(404, 'Invalid media link.');

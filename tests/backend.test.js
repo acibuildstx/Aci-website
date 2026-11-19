@@ -46,6 +46,66 @@ test('signed owner JWT: verifies signature, audience, expiry and owner allowlist
   for (const bad of [await token('outsider@example.com'),await token('owner@example.com','wrong'),await token('owner@example.com','app','-1m'),good.slice(0,-5)+'AAAAA']) await assert.rejects(requireOwner(request('/admin',null,{'Cf-Access-Jwt-Assertion':bad}),e));
  } finally { globalThis.fetch=original; }
 });
+const ownerPassword = 'Local-test-only:16+characters';
+const basic = (password = ownerPassword, username = 'owner', ip = '192.0.2.1') => ({
+ Authorization: 'Basic ' + Buffer.from(`${username}:${password}`, 'utf8').toString('base64'),
+ 'CF-Connecting-IP': ip
+});
+test('password login challenges protected aliases and accepts only the owner credential', async () => {
+ const e = { ...env(), OWNER_PASSWORD: ownerPassword };
+ for (const path of ['/admin', '/admin/', '/admin.html', '/api/admin/state', '/api/admin/upload', '/api/media/' + 'a'.repeat(32)]) {
+  const challenge = await run(() => new Response('owner'), request(path), e);
+  assert.equal(challenge.status, 401);
+  assert.equal(challenge.headers.get('WWW-Authenticate'), 'Basic realm="ACI Owner", charset="UTF-8"');
+  assert.equal(challenge.headers.get('Cache-Control'), 'no-store');
+  const allowed = await run(() => new Response('owner'), request(path, null, basic()), e);
+  assert.equal(allowed.status, 200);
+  assert.equal(allowed.headers.get('Cache-Control'), 'no-store');
+ }
+ for (const headers of [basic('wrong'), basic(ownerPassword, 'outsider'), { Authorization: 'Basic !!!' }, { 'Cf-Access-Authenticated-User-Email': 'owner@example.com' }]) {
+  assert.equal((await run(() => new Response('secret'), request('/admin', null, headers), e)).status, 401);
+ }
+ // Passwords use UTF-8 and may contain colons; username is fixed.
+ const unicode = { ...env(), OWNER_PASSWORD: 'A-long:pässword-for-owner' };
+ assert.equal((await requireOwner(request('/admin', null, basic(unicode.OWNER_PASSWORD)), unicode)).authentication, 'password');
+});
+test('password login fails closed for weak secrets, missing D1, HTTP or existing Access configuration', async () => {
+ for (const e of [{ ...env(), OWNER_PASSWORD: 'short' }, { OWNER_PASSWORD: ownerPassword }]) {
+  assert.equal((await run(() => new Response('secret'), request('/admin', null, basic()), e)).status, 503);
+ }
+ const e = { ...env(), OWNER_PASSWORD: ownerPassword };
+ const insecure = new Request('http://aci.test/admin', { headers: basic() });
+ assert.equal((await run(() => new Response('secret'), insecure, e)).status, 403);
+ const access = { ...e, ACCESS_ISSUER: 'https://test.cloudflareaccess.com', ACCESS_AUD: 'app', OWNER_EMAILS: 'owner@example.com' };
+ assert.equal((await run(() => new Response('secret'), request('/admin', null, basic()), access)).status, 401);
+ assert.equal((await run(() => new Response('secret'), request('/admin', null, basic()), { ...e, ACCESS_AUD: 'partial' })).status, 503);
+});
+test('owner sign-in throttle persists across requests without blocking customer submissions', async () => {
+ const e = { ...env(), OWNER_PASSWORD: ownerPassword };
+ for (let i = 0; i < 10; i++) assert.equal((await run(() => new Response('secret'), request('/admin', null, basic('wrong')), e)).status, 401);
+ assert.equal((await run(() => new Response('secret'), request('/admin', null, basic()), e)).status, 429);
+ assert.equal((await run(() => new Response('owner'), request('/admin', null, basic(ownerPassword, 'owner', '192.0.2.2')), e)).status, 200);
+ assert.equal((await run(submit, request('/api/submit-inquiry', form()), e)).status, 201);
+ e.ACI_DB.db.prepare("UPDATE inquiry_rate_limits SET bucket = 'owner-login:old-window:test' WHERE bucket LIKE 'owner-login:%'").run();
+ assert.equal((await run(() => new Response('owner'), request('/admin', null, basic()), e)).status, 200);
+});
+test('public site and contact form do not depend on owner sign-in or its configuration', async () => {
+ for (const e of [{}, { OWNER_PASSWORD: 'short' }, { OWNER_PASSWORD: ownerPassword, ACCESS_AUD: 'partial' }]) {
+  for (const path of ['/', '/api/gallery', '/api/submit-inquiry']) {
+   assert.equal((await run(() => new Response('public'), request(path), e)).status, 200);
+  }
+ }
+ const e = { ...env(), OWNER_PASSWORD: ownerPassword };
+ await run(submit, request('/api/submit-inquiry', form({}, [image()])), e);
+ const row = e.ACI_DB.db.prepare('SELECT * FROM private_media_tokens').get();
+ const path = '/api/media/' + row.token;
+ assert.equal((await run(privateMedia, request(path), e, { token: row.token })).status, 401);
+ assert.equal((await run(privateMedia, request(path, null, basic()), e, { token: row.token })).status, 200);
+ // A storage failure in sign-in does not prevent the public homepage responding.
+ e.ACI_DB.prepare = () => { throw new Error('private storage error'); };
+ assert.equal((await run(() => new Response('secret'), request('/admin', null, basic()), e)).status, 500);
+ assert.equal((await run(() => new Response('public'), request('/'), e)).status, 200);
+});
 test('cross-origin mutations rejected before storage', async () => {
  const e=env(); const response=await run(submit,request('/api/submit-inquiry',form(),{Origin:'https://evil.test'}),e); assert.equal(response.status,403); assert.equal(e.ACI_DB.db.prepare('SELECT COUNT(*) n FROM inquiries').get().n,0);
 });

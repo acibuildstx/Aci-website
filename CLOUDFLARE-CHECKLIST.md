@@ -6,9 +6,9 @@ Use the existing ACI Cloudflare Pages project and data resources. Confirm the pr
 
 | Account/access | Needed for |
 | --- | --- |
-| Cloudflare account with Pages/Workers, D1, R2 and Zero Trust administrative access | Existing Pages project, database, buckets and owner login. Start with free plans where available and check current quotas. R2 may require billing enrollment/payment details even within its free allowance; do not activate it without owner approval. |
+| Cloudflare account with Pages/Workers, D1 and R2 administrative access | Existing Pages project, database, buckets and password configuration. Zero Trust is optional. Start with free plans where available and check current quotas. R2 may require billing enrollment/payment details even within its free allowance; do not activate it without owner approval. |
 | Resend free account | API key and an already verified sender domain/address. `onboarding@resend.dev` is intentionally disallowed because its sandbox restrictions do not support general production notification routing. If domain verification requires new DNS records, treat that as a separate owner decision; no DNS change is authorized by this review. |
-| Owner email identity | Sign-in through Cloudflare Access (email OTP or approved identity provider), plus the exact owner allowlist. Protect the account itself with MFA. |
+| Owner password | A unique 16+ character password stored as the `OWNER_PASSWORD` encrypted Pages secret. Username is `owner`; no separate identity provider or signup. Existing Cloudflare account security stays in place. |
 | Local Node.js 24 LTS and npm, and access to the existing GitHub repository | Install locked dependencies, compile Functions and run tests. No repository or hosting service was created. |
 
 ## Resource bindings — same names in code, Wrangler and Pages environments
@@ -42,18 +42,25 @@ Configure separately for every intended Pages environment. Do not put secrets in
 | `RESEND_API_KEY` | **Encrypted secret** | Resend sending key scoped as narrowly as practical. Store in Pages secret settings; never in TOML. |
 | `FROM_EMAIL` | Variable | Actual address on the verified Resend domain, such as `website@your-verified-domain`. No angle brackets or display name; code supplies the display name. |
 | `ADMIN_NOTIFY_EMAIL` | Variable | Owner notification recipient. Supplied default is `acibuildstx@gmail.com`; owner must confirm it. |
-| `ACCESS_ISSUER` | Variable | Exact `https://YOUR-TEAM.cloudflareaccess.com` team origin. |
-| `ACCESS_AUD` | Variable | Exact Access application Audience (AUD) tag. If several owner path apps are used, comma-separate their exact tags. |
-| `OWNER_EMAILS` | Variable | Comma-separated email addresses authorized to own the portal and read customer attachments. Must match Access identities. |
+| `OWNER_PASSWORD` | **Encrypted secret** | Simple owner sign-in when all three Access variables are empty. Choose a unique 16+ character password; username is `owner`. Never put it in TOML. Save before redeployment. |
+| `ACCESS_ISSUER` | Optional variable | Exact `https://YOUR-TEAM.cloudflareaccess.com` team origin. |
+| `ACCESS_AUD` | Optional variable | Exact Access application Audience (AUD) tag. If several owner path apps are used, comma-separate their exact tags. |
+| `OWNER_EMAILS` | Optional variable | Comma-separated email addresses authorized to own the portal and read customer attachments. Must match Access identities. |
 
-The tracked database ID and bucket names come from the repository’s existing configuration. The Access audience and sender settings must be supplied in the hosting environment. `PUBLIC_MEDIA_BASE_URL` is removed: serving the R2 bucket directly defeats draft controls. Keep the existing client `mediaBaseUrl` empty; reviewed browser code intentionally uses application-hosted paths only.
+The tracked database ID and bucket names come from the repository’s existing configuration. The sender is configured in Wrangler; the API key and optional owner password are encrypted Pages secrets. Access variables are needed only if choosing the optional Access setup. `PUBLIC_MEDIA_BASE_URL` is removed: serving the R2 bucket directly defeats draft controls. Keep the existing client `mediaBaseUrl` empty; reviewed browser code intentionally uses application-hosted paths only.
 
-## Cloudflare Access coverage
+## Simple owner login (current setup)
+
+Use the `OWNER_PASSWORD` secret described in `README-SETUP.md`, then redeploy. Visit `/admin` and sign in as `owner`. No new service, team, subscription or database is needed. The public site, gallery and contact form are independent of owner authentication. Keep all three Access variables blank for password mode. A partly or fully configured Access setup cannot be bypassed by adding the password secret.
+
+Verify all admin aliases, admin APIs, draft photos and customer attachment links require the password over HTTPS. Test incorrect credentials and the sign-in throttle. Use a private window on a shared device and close all private windows afterward because HTTP credentials can remain cached by the browser. Rotate the password by replacing the secret and redeploying. Owner sign-in counters use the existing `inquiry_rate_limits` table with a distinct prefix; no production migration or data reset is needed.
+
+## Optional Cloudflare Access coverage (not required for password mode)
 
 - Configure a self-hosted Access application/policies for the chosen supported hostname, with an **Allow** policy restricted to the exact owner identities, no broad Bypass/Everyone rule. Include `/admin`, `/admin/`, `/admin.html`, `/api/admin/*` and `/api/media/*`. Account for Pages’ clean-URL redirects. Copy issuer/AUD/owner values into the runtime environment.
 - Verify the hostname is supported for the intended production application before committing to it. Pages’ built-in preview Access switch must **not** be assumed to protect production. If production Access requires a custom hostname in your account, domain/DNS work remains a separate launch prerequisite and requires separate approval. Without a working Access sign-in flow, this package deliberately keeps the portal and attachments inaccessible.
 - Sign in on the same site hostname before viewing draft photo URLs. Unpublished `/api/public-media/*` images verify the signed Access cookie; published images remain public. Do **not** blanket-protect this public-media route, the public gallery or the service-request endpoint.
-- Check production `pages.dev`, preview URLs and any future custom host independently. Do not leave an alternative deployment hostname as an untested route to private data. Server-side JWT checks remain active even when an edge policy is missing.
+- Check production `pages.dev`, preview URLs and any future custom host independently. Do not leave an alternative deployment hostname as an untested route to private data. Server-side owner authentication remains active even when an edge policy is missing.
 
 ## Pages project settings (for a later authorized deployment)
 

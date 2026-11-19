@@ -15,6 +15,9 @@ binding = "ACI_PRIVATE_BUCKET"
 bucket_name = "aci-client-uploads"
 
 [vars]
+# Optional simple owner login: add OWNER_PASSWORD as an encrypted Pages secret
+# (16+ characters). Username: owner. Leave the three Access values below empty.
+# Never put the password in this file. Existing Access configurations take priority.
 ADMIN_NOTIFY_EMAIL = "acibuildstx@gmail.com"
 FROM_EMAIL = "notifications@acibuildstx.com" # Sender on the verified Resend domain.
 ACCESS_ISSUER = "" # https://YOUR-TEAM.cloudflareaccess.com
