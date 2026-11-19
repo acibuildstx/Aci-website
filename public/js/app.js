@@ -2,7 +2,10 @@
   const cfg = window.ACI_CONFIG;
   const esc = window.ACI_UI.escape;
   let categories = [];
-  let activeSlug = "kitchens";
+  let activeSlug = "property-maintenance";
+  let featuredTimer;
+  let featuredIndex = 0;
+  const featuredOrder = ["property-maintenance", "flooring", "tile", "painting", "carpentry", "fences", "decks", "kitchens", "bathrooms"];
   let selectedFiles = [];
   let lastFocus;
   function closeLightbox() { document.getElementById("lightbox").hidden = true; lastFocus?.focus(); }
@@ -61,10 +64,7 @@
         if (Array.isArray(data.categories) && data.initialized === true) {
           initialized = true;
           categories = data.categories.filter(c => c.visible && c.photos?.length);
-          if (data.heroImage) {
-            const heroImg = document.getElementById("heroImg");
-            if (heroImg) heroImg.src = resolveMediaUrl(data.heroImage);
-          }
+          // The featured maintenance-first carousel owns the hero image.
         }
       }
     } catch (_) {
@@ -73,11 +73,62 @@
     if (!initialized) {
       categories = cfg.starterCategories.filter(c => c.visible && c.photos.length);
     }
+    categories.sort((a, b) => {
+      const rank = slug => featuredOrder.indexOf(slug) < 0 ? 100 : featuredOrder.indexOf(slug);
+      return rank(a.slug) - rank(b.slug) || (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
     if (categories.length && !categories.some(c => c.slug === activeSlug)) {
       activeSlug = categories[0].slug;
     }
     renderGalleryControls();
     renderActiveCategory();
+    setupFeaturedCarousel();
+  }
+
+  function setupFeaturedCarousel() {
+    const viewport = document.getElementById("featuredImage");
+    const thumbs = document.getElementById("featuredThumbs");
+    const caption = document.getElementById("featuredCaption");
+    const featured = categories.filter(c => c.photos?.length).slice(0, 9);
+    if (!viewport || !thumbs || !featured.length) return;
+    clearInterval(featuredTimer);
+    featuredIndex = 0;
+    function show(i) {
+      featuredIndex = (i + featured.length) % featured.length;
+      const cat = featured[featuredIndex];
+      const photo = cat.photos.find(p => p.is_cover) || cat.photos[0];
+      const url = resolveMediaUrl(photo.url);
+      viewport.src = url;
+      viewport.alt = `${cat.name} project by Absolute Custom Installations`;
+      caption.textContent = cat.name;
+      document.getElementById("featuredGalleryLink").href = `#portfolio`;
+      thumbs.querySelectorAll("button").forEach((btn, index) => {
+        btn.setAttribute("aria-pressed", String(index === featuredIndex));
+      });
+      const hero = document.getElementById("heroImg");
+      if (hero && featuredIndex === 0) hero.src = url;
+    }
+    const restart = () => {
+      clearInterval(featuredTimer);
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        featuredTimer = setInterval(() => show(featuredIndex + 1), 5500);
+      }
+    };
+    thumbs.innerHTML = featured.map((cat, index) => {
+      const photo = cat.photos.find(p => p.is_cover) || cat.photos[0];
+      return `<button type="button" class="featured-thumb" data-index="${index}" aria-label="Show ${esc(cat.name)}" aria-pressed="false"><img src="${esc(resolveMediaUrl(photo.url))}" alt="" loading="lazy"><span>${esc(cat.name)}</span></button>`;
+    }).join("");
+    thumbs.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
+      show(Number(btn.dataset.index)); restart();
+    }));
+    document.getElementById("featuredGalleryLink").addEventListener("click", () => {
+      activeSlug = featured[featuredIndex].slug;
+      renderGalleryControls(); renderActiveCategory();
+    });
+    show(0); restart();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) clearInterval(featuredTimer); else restart();
+    });
   }
 
   function renderGalleryControls() {
