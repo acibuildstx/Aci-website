@@ -13,7 +13,7 @@ window.ACI_CONFIG = {
     eyebrow: "GALVESTON COUNTY RESIDENTIAL & COMMERCIAL CONSTRUCTION",
     headline: "Built with skill. Finished with pride.",
     subheadline: "Independent contractor with dependable repair, thoughtful remodels, and practical renovations across Galveston County.",
-    heroImage: "photos/property-maintenance/property-maintenance-01.webp", // Lead with actual ACI property maintenance work
+    heroImage: "assets/curved-wall-flooring.svg", // Selected curved-wall flooring photo; maintenance gallery remains unchanged
     heroCaption: "Property Maintenance & Repairs • Galveston County, TX",
     primaryCta: "REQUEST SERVICE",
     secondaryCta: "CALL NOW: 409-919-0038"
