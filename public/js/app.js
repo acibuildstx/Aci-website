@@ -97,7 +97,7 @@
       featuredIndex = (i + featured.length) % featured.length;
       const cat = featured[featuredIndex];
       const photo = cat.photos.find(p => p.is_cover) || cat.photos[0];
-      const url = resolveMediaUrl(photo.url);
+      const url = resolveMediaUrl(cat.slug === "property-maintenance" ? cfg.hero.heroImage : photo.url);
       viewport.src = url;
       viewport.alt = `${cat.name} project by Absolute Custom Installations`;
       caption.textContent = cat.name;
@@ -106,7 +106,7 @@
         btn.setAttribute("aria-pressed", String(index === featuredIndex));
       });
       const hero = document.getElementById("heroImg");
-      if (hero && featuredIndex === 0) hero.src = url;
+      if (hero && featuredIndex === 0) hero.src = resolveMediaUrl(cfg.hero.heroImage);
     }
     const restart = () => {
       clearInterval(featuredTimer);
@@ -116,7 +116,7 @@
     };
     thumbs.innerHTML = featured.map((cat, index) => {
       const photo = cat.photos.find(p => p.is_cover) || cat.photos[0];
-      return `<button type="button" class="featured-thumb" data-index="${index}" aria-label="Show ${esc(cat.name)}" aria-pressed="false"><img src="${esc(resolveMediaUrl(photo.url))}" alt="" loading="lazy"><span>${esc(cat.name)}</span></button>`;
+      return `<button type="button" class="featured-thumb" data-index="${index}" aria-label="Show ${esc(cat.name)}" aria-pressed="false"><img src="${esc(resolveMediaUrl(cat.slug === "property-maintenance" ? cfg.hero.heroImage : photo.url))}" alt="" loading="lazy"><span>${esc(cat.name)}</span></button>`;
     }).join("");
     thumbs.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
       show(Number(btn.dataset.index)); restart();
