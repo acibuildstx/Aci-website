@@ -1,7 +1,7 @@
 window.ACI_CONFIG = {
   companyName: "Absolute Custom Installations",
   shortName: "ACI",
-  tagline: "Repair • Install • Renovate",
+  tagline: "Repair • Remodel • Renovate",
   phoneDisplay: "409-919-0038",
   phoneHref: "tel:4099190038",
   location: "Galveston County, Texas",
