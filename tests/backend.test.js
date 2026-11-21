@@ -18,7 +18,7 @@ function database() {
   function prepare(sql) { let values = []; return {
     bind(...v) { values = v; return this; },
     async first() { return db.prepare(sql).get(...values) || null; },
-    async run() { db.prepare(sql).run(...values); return { success: true }; }
+    async run() { const { changes } = db.prepare(sql).run(...values); return { success: true, meta: { changes } }; }
   }; }
   return { prepare, async batch(statements) { db.exec('BEGIN'); try { const r=[]; for (const s of statements) r.push(await s.run()); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } }, db };
 }
@@ -141,13 +141,53 @@ test('oversized body rejected before parsing', async () => {
  const r=await run(submit,request('/api/submit-inquiry','x',{'Content-Length':String(100*1024*1024)}),env());assert.equal(r.status,413);
 });
 const categories=[{slug:'kitchens',name:'Kitchen <img src=x onerror=bad()>',visible:true,photos:[{url:'photos/kitchens/kitchen-cover.webp',caption:'Quote " & <script>',is_cover:true}]},{slug:'hidden',name:'Hidden',visible:false,photos:[]}];
+const ownerState = async e => (await state({env:e})).json();
+const ownerSave = async (env, data) => (await save({
+ env, request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,heroImage:null,...data}))
+})).json();
+
 test('gallery draft isolated, publish atomic, hidden categories filtered, empty publication retained', async () => {
- const e=env();const post=mode=>save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode,categories,heroImage:'photos/kitchens/kitchen-cover.webp'}))});
- await post('draft');assert.equal((await (await gallery({env:e})).json()).initialized,false);assert.equal((await (await state({env:e})).json()).categories.length,2);
- await post('publish');assert.equal((await (await gallery({env:e})).json()).categories.length,1);
- await save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:[],heroImage:null}))});assert.deepEqual((await (await gallery({env:e})).json()).categories,[]);
- const bad=structuredClone(categories);bad[0].photos[0].url='javascript:alert(1)';await assert.rejects(save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:bad,heroImage:null}))}));
+ const e=env();
+ const draft=await ownerSave(e,{mode:'draft',categories,version:null});
+ assert.equal((await (await gallery({env:e})).json()).initialized,false);
+ assert.equal((await ownerState(e)).categories.length,2);
+ const published=await ownerSave(e,{mode:'publish',categories,version:draft.version});
+ assert.equal((await (await gallery({env:e})).json()).categories.length,1);
+ const empty=await ownerSave(e,{mode:'publish',categories:[],version:published.version});
+ assert.deepEqual((await (await gallery({env:e})).json()).categories,[]);
+ const bad=structuredClone(categories);bad[0].photos[0].url='javascript:alert(1)';
+ await assert.rejects(ownerSave(e,{mode:'publish',categories:bad,version:empty.version}), error => error.status === 400);
 });
+
+test('legacy IDs are stable and concurrent gallery saves cannot overwrite the winning draft', async () => {
+ const e=env();
+ const legacy=structuredClone(categories);
+ legacy[0].photos.push({id:'legacy-1',url:'photos/kitchens/kitchen-02.webp',caption:''});
+ legacy[0].photos.push({...legacy[0].photos[1]});
+ e.ACI_DB.db.prepare('INSERT INTO gallery_state (id, payload, updated_at) VALUES (?, ?, ?)')
+  .run(`${GALLERY_REVISION}:published`,JSON.stringify(legacy),'2026-01-01');
+ const initial=await ownerState(e);
+ assert.deepEqual(initial.categories[0].photos.map(p=>p.id),['legacy-2','legacy-1','legacy-3']);
+ assert.deepEqual(await ownerState(e),initial);
+ const updated=structuredClone(initial.categories);
+ const target=updated[0].photos[0];
+ target.previous_url=target.url;
+ target.url='/api/public-media/portfolio/kitchens/fresh.webp';
+ const races=await Promise.allSettled([
+  ownerSave(e,{mode:'draft',categories:updated,version:initial.version}),
+  ownerSave(e,{mode:'draft',categories:initial.categories,version:initial.version})
+ ]);
+ assert.equal(races[0].status,'fulfilled');
+ assert.equal(races[1].reason.status,409);
+ assert.deepEqual((await ownerState(e)).categories,updated);
+ assert.equal((await (await gallery({env:e})).json()).categories[0].photos[0].url,target.previous_url);
+ await assert.rejects(ownerSave(e,{mode:'publish',categories:initial.categories,version:initial.version}), error=>error.status===409);
+ await ownerSave(e,{mode:'publish',categories:updated,version:races[0].value.version});
+ const live=(await (await gallery({env:e})).json()).categories[0].photos[0];
+ assert.equal(live.url,target.url);
+ assert.equal(live.previous_url,undefined);
+});
+
 test('legacy gallery rows and stale portal saves cannot override the reviewed gallery', async () => {
  const e = env();
  const insert = e.ACI_DB.db.prepare('INSERT INTO gallery_state (id, payload, updated_at) VALUES (?, ?, ?)');
@@ -173,9 +213,29 @@ test('unpublished R2 photo denied; only published photo becomes public, original
  const e=env();const key='portfolio/kitchens/abc.webp',url='/api/public-media/'+key;await e.ACI_PUBLIC_BUCKET.put(key,new Uint8Array([1,2]));
  await assert.rejects(publicMedia({env:e,request:request(url),params:{path:key}}),err=>err.status===503);
  const c=structuredClone(categories);c[0].photos[0].url=url;
- await save({env:e,request:request('/api/admin/state',JSON.stringify({revision:GALLERY_REVISION,mode:'publish',categories:c,heroImage:null}))});assert.equal((await publicMedia({env:e,request:request(url),params:{path:key}})).status,200);
+ await ownerSave(e,{mode:'publish',categories:c,version:null});assert.equal((await publicMedia({env:e,request:request(url),params:{path:key}})).status,200);
  await assert.rejects(publicMedia({env:e,request:request(url),params:{path:'originals/private.jpg'}}),err=>err.status===404);
 });
 test('admin upload validates bytes and rolls back failed R2 write',async()=>{
  const e=env();const f=new FormData();f.set('webp',image());f.set('original',image());f.set('category','kitchens');e.ACI_PUBLIC_BUCKET.put=async()=>{throw new Error('R2 failed');};await assert.rejects(upload({env:e,request:request('/api/admin/upload',f)}));assert.equal(e.ACI_PRIVATE_BUCKET.files.size,0);
+});
+
+test('replacement uploads with the same source filename get fresh keys and preserve both assets', async () => {
+ const e=env();
+ const add=async () => {
+  const body=new FormData();
+  body.set('webp',image());
+  body.set('original',image());
+  body.set('category','kitchens');
+  return (await (await upload({env:e,request:request('/api/admin/upload',body)})).json()).publicUrl;
+ };
+ const oldUrl=await add();
+ const oldKey=oldUrl.replace('/api/public-media/','');
+ const oldBytes=Buffer.from(e.ACI_PUBLIC_BUCKET.files.get(oldKey));
+ const replacementUrl=await add();
+ assert.notEqual(replacementUrl,oldUrl);
+ assert.match(replacementUrl,/^\/api\/public-media\/portfolio\/kitchens\/[0-9a-f-]{36}\.webp$/);
+ assert.equal(e.ACI_PUBLIC_BUCKET.files.size,2);
+ assert.equal(e.ACI_PRIVATE_BUCKET.files.size,2);
+ assert.deepEqual(Buffer.from(e.ACI_PUBLIC_BUCKET.files.get(oldKey)),oldBytes);
 });

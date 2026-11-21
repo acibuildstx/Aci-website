@@ -2,9 +2,23 @@
   const esc = window.ACI_UI.escape;
   let ready = false;
   let state = JSON.parse(JSON.stringify(window.ACI_CONFIG.starterCategories));
-  let heroImage = window.ACI_CONFIG.hero.heroImage;
+  let heroImage = null;
+  let version = null;
+  let pendingPhotoEdits = 0;
+  let needsDraft = false;
+  let saving = false;
+  let editingPhoto = false;
   let selectedSlug = state[0].slug;
   const statusEl = document.getElementById("adminStatus");
+
+  const dialog = document.getElementById("photoChangeDialog");
+  const saveDraftBtn = document.getElementById("saveDraftBtn");
+  const publishLiveBtn = document.getElementById("publishLiveBtn");
+
+  function updateSaveControls() {
+    saveDraftBtn.disabled = !ready || saving || pendingPhotoEdits > 0;
+    publishLiveBtn.disabled = saveDraftBtn.disabled || needsDraft;
+  }
 
   function setStatus(text) {
     statusEl.textContent = text;
@@ -36,9 +50,12 @@
       if (!res.ok) throw new Error("Owner sign-in or database configuration is required.");
       const data = await res.json();
       if (data.initialized) state = data.categories;
-      if (data.heroImage) heroImage = data.heroImage;
+      heroImage = data.heroImage ?? null;
+      version = data.version;
+      if (version !== null && typeof version !== "string") throw new Error("Reload the Owner Portal to use the current gallery editor.");
       selectedSlug = state[0]?.slug;
       ready = true;
+      updateSaveControls();
       setStatus("Gallery database connected; uploads require R2");
     } catch (error) {
       setStatus(error.message || "Unable to load gallery. Reload after signing in.");
@@ -119,7 +136,10 @@
           <button type="button" class="mini-btn" data-move-p="1" data-pidx="${idx}" ${idx === cat.photos.length - 1 ? "disabled" : ""}>→</button>
           <button type="button" class="mini-btn gold" data-cover="${idx}">Set Cover</button>
           <button type="button" class="mini-btn gold" data-hero="${idx}">Set Hero</button>
-          <button type="button" class="mini-btn" data-ba="${idx}">+ Before Pair</button>
+          <button type="button" class="mini-btn" data-replace="${esc(p.id)}">Replace Photo</button>
+          <button type="button" class="mini-btn" data-ba="${esc(p.id)}">+ Before Pair</button>
+          <button type="button" class="mini-btn" data-move-photo="${esc(p.id)}" ${state.length < 2 ? "disabled" : ""}>Move to Category</button>
+          ${p.previous_url ? `<button type="button" class="mini-btn" data-restore-photo="${esc(p.id)}">Restore Previous</button>` : ""}
           <button type="button" class="mini-btn danger" data-del="${idx}">Delete</button>
         </div>
       </div>
@@ -159,25 +179,15 @@
       };
     });
 
-    grid.querySelectorAll("[data-ba]").forEach(btn => {
-      btn.onclick = () => {
-        const i = Number(btn.dataset.ba);
-        const picker = document.createElement("input");
-        picker.type = "file";
-        picker.accept = "image/*";
-        picker.onchange = async () => {
-          const file = picker.files[0];
-          if (!file) return;
-          try {
-          const webpBlob = await compressToWebP(file);
-          const uploadedUrl = await uploadAdminImage(webpBlob, file, `${cat.slug}-before-${Date.now()}.webp`, cat.slug);
-          cat.photos[i].before_url = uploadedUrl;
-          renderEditor();
-          setStatus("Before & After pair linked; save draft or publish to persist");
-          } catch (error) { setStatus(error.message); }
-        };
-        picker.click();
-      };
+    grid.querySelectorAll("[data-replace], [data-ba]").forEach(button => {
+      button.onclick = () => choosePhoto(cat, button.dataset.replace || button.dataset.ba,
+        button.hasAttribute("data-replace") ? "url" : "before_url");
+    });
+    grid.querySelectorAll("[data-restore-photo]").forEach(button => {
+      button.onclick = () => restorePhoto(cat, button.dataset.restorePhoto);
+    });
+    grid.querySelectorAll("[data-move-photo]").forEach(button => {
+      button.onclick = () => movePhoto(cat, button.dataset.movePhoto);
     });
 
     grid.querySelectorAll("[data-del]").forEach(btn => {
@@ -190,6 +200,134 @@
     });
   }
 
+  function resolvePhoto(cat, original, field) {
+    const current = cat.photos.find(photo => photo.id === original.id);
+    if (!current || current.url !== original.url || current[field] !== original[field]) {
+      throw new Error("This photo was removed, moved, or changed. No photo was updated.");
+    }
+    return current;
+  }
+
+  function previewChange({ title, description, current, next, label = "Current", destinations = [] }) {
+    const destination = document.getElementById("photoDestination");
+    document.getElementById("photoChangeTitle").textContent = title;
+    document.getElementById("photoChangeDescription").textContent = description;
+    document.getElementById("currentPhotoLabel").textContent = label;
+    for (const [id, url] of [["currentPhotoPreview", current], ["replacementPhotoPreview", next]]) {
+      const figure = document.getElementById(id);
+      figure.hidden = !url;
+      if (url) figure.querySelector("img").src = url;
+    }
+    document.getElementById("photoDestinationField").hidden = !destinations.length;
+    destination.replaceChildren(...destinations.map(cat => new Option(cat.name, cat.slug)));
+    dialog.returnValue = "";
+    return new Promise(resolve => {
+      dialog.addEventListener("close", () => {
+        dialog.querySelectorAll("img").forEach(img => img.removeAttribute("src"));
+        resolve(dialog.returnValue === "confirm" ? destination.value || true : false);
+      }, { once: true });
+      dialog.showModal();
+    });
+  }
+
+  function photoChanged(message) {
+    needsDraft = true;
+    renderCategories();
+    renderEditor();
+    setStatus(`${message} Save Draft, then Publish Live to apply.`);
+  }
+
+  async function editPhoto(action) {
+    if (editingPhoto || saving) { setStatus("Finish the current photo change first."); return; }
+    editingPhoto = true;
+    pendingPhotoEdits++;
+    updateSaveControls();
+    try { await action(); }
+    catch (error) { setStatus(error.message); }
+    finally {
+      editingPhoto = false;
+      pendingPhotoEdits--;
+      updateSaveControls();
+    }
+  }
+
+  function choosePhoto(cat, id, field) {
+    const original = { ...cat.photos.find(photo => photo.id === id) };
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.accept = "image/*";
+    picker.onchange = () => {
+      const file = picker.files[0];
+      if (!file) return;
+      editPhoto(async () => {
+        resolvePhoto(cat, original, field);
+        const replacing = field === "url";
+        const webp = await compressToWebP(file);
+        const preview = URL.createObjectURL(webp);
+        let confirmed;
+        try {
+          confirmed = await previewChange({
+            title: replacing ? "Replace Photo" : "Link Before Photo",
+            description: `${cat.name} — ${original.caption || original.id}`,
+            current: window.ACI_UI.media(original[field] || original.url),
+            next: preview,
+            label: !replacing && !original.before_url ? "Gallery photo" : "Current"
+          });
+        } finally { URL.revokeObjectURL(preview); }
+        if (!confirmed) return;
+        resolvePhoto(cat, original, field);
+        setStatus("Uploading photo…");
+        const url = await uploadAdminImage(webp, file, `${id}.webp`, cat.slug);
+        const current = resolvePhoto(cat, original, field);
+        if (url === current[field]) throw new Error("The upload did not return a new photo URL.");
+        if (replacing) current.previous_url = current.url;
+        current[field] = url;
+        photoChanged(replacing ? "Photo replaced in the editor." : "Before photo linked in the editor.");
+      });
+    };
+    picker.click();
+  }
+
+  function restorePhoto(cat, id) {
+    const original = { ...cat.photos.find(photo => photo.id === id) };
+    editPhoto(async () => {
+      const confirmed = await previewChange({
+        title: "Restore Previous Photo",
+        description: `${cat.name} — ${original.caption || id}`,
+        current: window.ACI_UI.media(original.url),
+        next: window.ACI_UI.media(original.previous_url)
+      });
+      if (!confirmed) return;
+      const current = resolvePhoto(cat, original, "previous_url");
+      [current.url, current.previous_url] = [current.previous_url, current.url];
+      photoChanged("Previous photo restored in the editor.");
+    });
+  }
+
+  function movePhoto(cat, id) {
+    const original = { ...cat.photos.find(photo => photo.id === id) };
+    editPhoto(async () => {
+      const eligible = destination => destination !== cat && !destination.photos.some(photo =>
+        photo.id === id || (original.is_cover && photo.is_cover));
+      const destinations = state.filter(eligible);
+      if (!destinations.length) throw new Error("No destination can keep this photo’s ID and cover status. Choose a different source cover first if needed.");
+      const slug = await previewChange({
+        title: "Move Photo to Another Category",
+        description: `From ${cat.name}. The photo will be added at the end of the destination’s list.`,
+        current: window.ACI_UI.media(original.url),
+        label: "Selected photo",
+        destinations
+      });
+      if (!slug) return;
+      const destination = state.find(category => category.slug === slug);
+      const current = resolvePhoto(cat, original, "is_cover");
+      if (!destination || !eligible(destination)) throw new Error("This destination changed. No photo was moved.");
+      cat.photos.splice(cat.photos.indexOf(current), 1);
+      destination.photos.push(current);
+      photoChanged(`Photo moved to ${destination.name} in the editor.`);
+    });
+  }
+
   async function uploadAdminImage(webpBlob, originalFile, filename, uploadCategory = selectedSlug) {
     if (webpBlob.size + originalFile.size > 30 * 1024 * 1024) throw new Error("Image and optimized copy must total no more than 30MB.");
     const fd = new FormData();
@@ -198,7 +336,7 @@
     fd.append("category", uploadCategory);
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
     const data = await res.json();
-    if (!res.ok || !data.ok || !window.ACI_UI.media(data.publicUrl)) throw new Error(data.error || "Upload failed. Nothing was added to the gallery.");
+    if (!res.ok || !data.ok || !data.publicUrl?.startsWith("/api/public-media/") || !window.ACI_UI.media(data.publicUrl)) throw new Error(data.error || "Upload failed. Nothing was added to the gallery.");
     return data.publicUrl;
   }
 
@@ -207,6 +345,8 @@
     const files = Array.from(e.target.files || []);
     if (!cat || !files.length) return;
 
+    pendingPhotoEdits++;
+    updateSaveControls();
     setStatus(`Optimizing & uploading ${files.length} photo(s)...`);
     try {
     for (const file of files) {
@@ -214,18 +354,21 @@
       const webpBlob = await compressToWebP(file);
       const url = await uploadAdminImage(webpBlob, file, `${cat.slug}-${Date.now()}.webp`, cat.slug);
       cat.photos.push({
-        id: `p_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        id: crypto.randomUUID(),
         url,
         caption: file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " "),
         is_cover: cat.photos.length === 0
       });
     }
-    e.target.value = "";
     renderCategories();
     renderEditor();
     setStatus("Photos uploaded; save draft or publish to persist gallery changes");
     } catch (error) { setStatus(error.message); renderCategories(); renderEditor(); }
-    finally { e.target.value = ""; }
+    finally {
+      e.target.value = "";
+      pendingPhotoEdits--;
+      updateSaveControls();
+    }
   });
 
   document.getElementById("addCategoryBtn").onclick = () => {
@@ -241,28 +384,34 @@
 
   async function persistState(mode) {
     if (!ready) { setStatus("Load the gallery before saving."); return; }
+    if (saving || pendingPhotoEdits || (mode === "publish" && needsDraft)) return;
     setStatus(mode === "publish" ? "Publishing live..." : "Saving draft...");
-    document.getElementById("saveDraftBtn").disabled = true;
-    document.getElementById("publishLiveBtn").disabled = true;
+    saving = true;
+    updateSaveControls();
+    document.querySelector("main").inert = true;
     try {
       const res = await fetch("/api/admin/state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, categories: state, heroImage, revision: window.ACI_CONFIG.galleryRevision })
+        body: JSON.stringify({ mode, categories: state, heroImage, version, revision: window.ACI_CONFIG.galleryRevision })
       });
       const result = await res.json();
       if (!res.ok || !result.ok) throw new Error(result.error || "Server save failed");
+      version = result.version;
+      if (mode === "draft") needsDraft = false;
       setStatus(mode === "publish" ? "Published Live ✓" : "Draft Saved ✓");
     } catch (err) {
       setStatus(err.message || "Save failed; changes remain unsaved.");
     } finally {
-      document.getElementById("saveDraftBtn").disabled = false;
-      document.getElementById("publishLiveBtn").disabled = false;
+      saving = false;
+      document.querySelector("main").inert = false;
+      updateSaveControls();
     }
   }
 
-  document.getElementById("saveDraftBtn").onclick = () => persistState("draft");
-  document.getElementById("publishLiveBtn").onclick = () => persistState("publish");
+  saveDraftBtn.onclick = () => persistState("draft");
+  publishLiveBtn.onclick = () => persistState("publish");
 
+  updateSaveControls();
   init();
 })();

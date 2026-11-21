@@ -350,6 +350,12 @@ img { max-width: 100%; display: block; }
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
+.service-request-link {
+  align-self: flex-start;
+  min-height: 44px;
+  text-transform: none;
+}
+
 .service-card:hover {
   border-color: var(--accent-gold);
   transform: translateY(-2px);

@@ -21,6 +21,12 @@
     .mini-btn.gold { border-color: var(--accent-gold); color: var(--text-navy); }
     .mini-btn.danger { color: #B42318; border-color: #FDA29B; }
     .status-pill { font-size: 0.78rem; padding: 0.3rem 0.65rem; background: rgba(255,255,255,0.12); border: 1px solid var(--accent-gold); }
+    .photo-change-dialog { width: min(34rem, calc(100% - 2rem)); }
+    .photo-change-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+    .photo-change-preview { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+    .photo-change-preview figure { flex: 1 1 8rem; margin: 0; }
+    .photo-change-preview img { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; }
+    .photo-change-preview figcaption { font-weight: 600; }
     @media (max-width: 820px) { .admin-layout { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -29,7 +35,7 @@
     <div class="container admin-bar-inner">
       <div>
         <strong>ACI OWNER PORTAL</strong>
-        <span class="status-pill" id="adminStatus">Connecting…</span>
+        <span class="status-pill" id="adminStatus" role="status">Connecting…</span>
       </div>
       <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
         <a href="/" target="_blank" rel="noopener" class="btn btn-outline-gold btn-sm">PREVIEW SITE ↗</a>
@@ -72,8 +78,27 @@
     </section>
   </main>
 
+  <dialog class="photo-change-dialog" id="photoChangeDialog" aria-labelledby="photoChangeTitle">
+    <h2 id="photoChangeTitle"></h2>
+    <p id="photoChangeDescription"></p>
+    <div class="photo-change-preview">
+      <figure id="currentPhotoPreview"><img alt="" /><figcaption id="currentPhotoLabel">Current</figcaption></figure>
+      <figure id="replacementPhotoPreview"><img alt="" /><figcaption>New</figcaption></figure>
+    </div>
+    <form method="dialog">
+      <div id="photoDestinationField" class="form-group" hidden>
+        <label for="photoDestination">Move to category</label>
+        <select id="photoDestination" class="form-control"></select>
+      </div>
+      <div class="admin-btn-row">
+        <button class="mini-btn" value="cancel" autofocus>Cancel</button>
+        <button class="mini-btn gold" id="confirmPhotoChange" value="confirm">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
   <script src="/js/ui-utils.js"></script>
   <script src="/js/site-config.js?v=owner-photos-v2"></script>
-  <script src="/js/admin.js?v=owner-photos-v2"></script>
+  <script src="/js/admin.js?v=photo-edits-v1"></script>
 </body>
 </html>
