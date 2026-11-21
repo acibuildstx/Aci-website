@@ -104,7 +104,7 @@ The exact historical edit could not be identified without the original photo, in
 
 Add Replace Photo to each existing card using a stable photo ID scoped to its category. Backfill IDs for older rows without them and validate uniqueness. Upload the replacement to a new UUID object, then resolve the same ID again and check the original URL or a state version before updating only that card's URL. Keep its order, caption, cover flag and before-pair metadata. Show an old/new thumbnail preview, identify any featured or hero usage, and keep the previous URL and bytes for rollback. Apply the same ID-based targeting to Before Pair. A draft save should precede an explicit publish. These changes can reuse the existing upload and D1 storage paths.
 
-## Owner Portal status
+## Owner Portal baseline before the follow-up
 
 | Capability | Implementation |
 | --- | --- |
@@ -129,4 +129,18 @@ The live starter gallery opens with Property Maintenance on a fresh load. A prev
 
 The 67 live starter URLs returned WebP bytes identical to the repository. Chromium verified the starter default, mobile category selection, all 14 visible categories and exact displayed order, the lightbox, and the responsive layout from 320 to 1440 pixels. It also verified the three service labels and button widths, the existing footer copy, and both the accepted and failed email paths using mocked responses. Portal interaction checks used mocked state and upload responses. All 18 backend tests passed and the Wrangler Functions build compiled locally. The branch diff contains no photo, logo, gallery configuration, schema, archive or deployment setting changes.
 
-The changes affect `public/js/app.js` (service labels and accepted email message), `public/css/styles.css` (content-width service buttons with 44px minimum height), `public/index.html` (asset cache versions), `tests/browser-check.mjs` (regression checks), and this report. Gallery behavior already meets the initial selection requirement, which is now checked by the browser suite. No Cloudflare configuration change is required for this patch.
+The initial changes affect `public/js/app.js` (service labels and accepted email message), `public/css/styles.css` (content-width service buttons with 44px minimum height), `public/index.html` (asset cache versions), `tests/browser-check.mjs` (regression checks), and this report. Gallery behavior already meets the initial selection requirement, which is now checked by the browser suite. No Cloudflare configuration change is required for this patch.
+
+## Owner Portal follow-up
+
+- **Replace Photo** previews the current and selected image. After confirmation, it uses the existing authenticated upload to create a fresh UUID object and private original. The editor verifies the selected ID and expected existing URL before applying the result. The card keeps its category, order, caption, cover flag and Before Pair. A cover replacement also changes any featured view derived from that cover. The separate hero setting keeps its existing reference.
+- **Before Pair** now follows the same stable card ID and expected URL checks. Reordering during upload keeps the same target. If the photo is removed or changes, the editor reports the conflict and leaves other cards alone.
+- **Move to Category** previews the selected card, then appends it to the destination without uploading again. Its URL, caption, Before Pair, rollback reference and ID travel with the card. The picker excludes destinations that already use the ID or would create two flagged covers. Pick another cover in the source first if the destination already has a cover. The destination’s visibility and display cap apply.
+- **Save Draft** persists these card edits. **Publish Live** becomes available after a successful draft save. Each save checks the D1 snapshot version so a stale session cannot replace someone else’s saved draft or publication. After a conflict, reload to see the winning draft and reapply the intended edits.
+- **Restore Previous** previews and swaps the current image with its immediately previous URL. Save the restored draft and publish explicitly to restore public display. This is a one-step rollback, and older R2 objects are retained. If an upload completes after a local conflict or the owner discards a draft, the unreferenced upload remains in storage. Optimized R2 URLs with no published reference require owner authentication. Bundled static files remain available at their existing paths.
+
+Legacy records missing usable IDs get deterministic category-scoped IDs when read. The next save persists them, without a D1 schema migration or an automatic production write. The existing static filename scheme and gallery revision namespace still apply. The portal sends an empty hero override for a fresh starter gallery so draft validation accepts it, and preserves a saved override if present.
+
+The follow-up changes the Owner Portal HTML and script, the shared gallery helpers, the owner state API, the public gallery response (which omits rollback URLs), the backend and browser tests, and this report. Production D1, R2 and authentication were neither inspected nor exercised. The existing authenticated upload and bucket configuration are reused.
+
+Follow-up verification passed all 20 backend tests, the Wrangler build and Chromium regression checks. A local Miniflare D1 binding also verified that two simultaneous first-draft saves produce one success and one conflict, and that publishing writes both snapshots. Browser interactions used mocked owner API responses. The backend tests verified fresh upload keys and preservation of both old and new bytes using in-memory R2 substitutes.
