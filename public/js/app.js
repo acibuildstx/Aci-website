@@ -24,28 +24,6 @@
       heroCap.textContent = cfg.hero.heroCaption;
     }
 
-    const triad = document.getElementById("servicesTriad");
-    triad.innerHTML = cfg.principalServices.map(svc => `
-      <article class="service-card" id="svc-${svc.id}">
-        <div>
-          <span class="service-code">${svc.code}</span>
-          <h3>${svc.title}</h3>
-          <p class="service-sub">${svc.subtitle}</p>
-          <p class="service-desc">${svc.description}</p>
-          <ul class="service-list">
-            ${svc.highlights.map(item => `<li>${item}</li>`).join("")}
-          </ul>
-        </div>
-        <a href="#contact" class="btn btn-outline-gold btn-sm service-request-link" data-preset-service="${svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}">
-          Request ${svc.id === "renovate" ? "Renovation" : svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}
-        </a>
-      </article>
-    `).join("");
-
-    document.getElementById("pmTitle").textContent = cfg.propertyManagement.title;
-    document.getElementById("pmBody").textContent = cfg.propertyManagement.body;
-    document.getElementById("pmTagline").textContent = cfg.propertyManagement.tagline;
-
     document.getElementById("aboutBody").textContent = cfg.about.body;
     document.getElementById("aboutPillars").innerHTML = cfg.about.pillars.map(p => `
       <div class="pillar-card">
