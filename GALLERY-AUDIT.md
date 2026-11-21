@@ -8,6 +8,8 @@ The 67 numbered WebPs already use two digits. Each slot below is the one-based p
 
 The ZIP contains the same 81 WebPs and roofline SVG at the corresponding `aci-website/public/…` paths. All 82 archive images match the working tree bytes. The ZIP is a historical package and its separate copy of the source is not loaded by the site. Each category's legacy `-cover.webp` is byte-identical to its numbered `-01.webp`. Current starter cover flags point at the numbered copies. No other tracked image hashes matched, and every starter URL resolves to a tracked file with no URL repeated across slots. The earlier [Drive source mapping](GALLERY-PHOTO-MAPPING.md) records the original JPG filenames. Its directions about replacing separate cover files and about the kitchen hero describe an older setup.
 
+| Tracked path | Category | Reference |
+| --- | --- | --- |
 | `public/assets/aci-logo.svg` | — | Homepage header and footer. |
 | `public/assets/curved-wall-flooring.svg` | Flooring subject, outside gallery | Prior featured wrapper. No current runtime reference. |
 | `public/photos/bathrooms/bathroom-01.webp` | Bathroom Remodels | Slot 1, cover flag |
@@ -122,3 +124,9 @@ After approval, build a manifest by category slug and stable photo ID covering c
 ## Gallery default and copy baseline
 
 The live starter gallery opens with Property Maintenance on a fresh load. A previous version may differ. Current navigation can still open Kitchens when the user activates its tab or follows View Full Gallery while Kitchens is the featured slide. If published data omits, hides or empties Property Maintenance, the gallery selects the first eligible category. The existing fallback preserves the owner's visibility choices. The current footer already omits “and rental services.” The three service-card links stretch to the card width because the cards are flex columns. The form's success text currently differs from the requested wording.
+
+## Branch verification
+
+The 67 live starter URLs returned WebP bytes identical to the repository. Chromium verified the starter default, mobile category selection, all 14 visible categories and exact displayed order, the lightbox, and the responsive layout from 320 to 1440 pixels. It also verified the three service labels and button widths, the existing footer copy, and both the accepted and failed email paths using mocked responses. Portal interaction checks used mocked state and upload responses. All 18 backend tests passed and the Wrangler Functions build compiled locally. The branch diff contains no photo, logo, gallery configuration, schema, archive or deployment setting changes.
+
+The changes affect `public/js/app.js` (service labels and accepted email message), `public/css/styles.css` (content-width service buttons with 44px minimum height), `public/index.html` (asset cache versions), `tests/browser-check.mjs` (regression checks), and this report. Gallery behavior already meets the initial selection requirement, which is now checked by the browser suite. No Cloudflare configuration change is required for this patch.

@@ -36,8 +36,8 @@
             ${svc.highlights.map(item => `<li>${item}</li>`).join("")}
           </ul>
         </div>
-        <a href="#contact" class="btn btn-outline-gold btn-sm" data-preset-service="${svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}">
-          REQUEST ${svc.id === "renovate" ? "RENOVATION" : svc.title}
+        <a href="#contact" class="btn btn-outline-gold btn-sm service-request-link" data-preset-service="${svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}">
+          Request ${svc.id === "renovate" ? "Renovation" : svc.title.charAt(0) + svc.title.slice(1).toLowerCase()}
         </a>
       </article>
     `).join("");
@@ -383,7 +383,7 @@
         selectedFiles = [];
         renderFileList();
         if (result.notification === "accepted") {
-          showFeedback("Thanks! Your request has been received.", "success");
+          showFeedback("Email sent.", "success");
         } else {
           showFeedback(`Your service request and files have been saved, but the email notification failed or could not be confirmed. Please call 409-919-0038 and quote your reference. Reference: ${result.inquiryId}`, "error");
         }
