@@ -11,6 +11,24 @@ try {
  assert.equal(await page.locator('.gallery-tab[aria-selected="true"]').getAttribute('data-slug'), 'property-maintenance');
  assert.equal(await page.locator('#mobileCategorySelect').inputValue(), 'property-maintenance');
  const starterCategories = await page.evaluate(() => window.ACI_CONFIG.starterCategories);
+ const maintenanceThumb = page.getByRole('button', {name:'Show Property Maintenance', exact:true});
+ const flooringThumb = page.getByRole('button', {name:'Show Flooring', exact:true});
+ const maintenanceImage = '/photos/property-maintenance/property-maintenance-01.webp';
+ const heroImage = await page.evaluate(() => window.ACI_CONFIG.hero.heroImage);
+ const featuredImage = page.locator('#featuredImage');
+ assert.equal(await featuredImage.getAttribute('src'), maintenanceImage);
+ assert.equal(await maintenanceThumb.locator('img').getAttribute('src'), maintenanceImage);
+ for (const width of [1440, 390]) {
+  await page.setViewportSize({width,height:900});
+  await flooringThumb.click();
+  assert.equal(await featuredImage.getAttribute('src'), await flooringThumb.locator('img').getAttribute('src'));
+  await maintenanceThumb.click();
+  assert.equal(await maintenanceThumb.getAttribute('aria-pressed'), 'true');
+  assert.equal(await featuredImage.getAttribute('src'), maintenanceImage);
+  assert.equal(await page.locator('#heroImg').getAttribute('src'), heroImage);
+  assert.ok(await featuredImage.evaluate(img => img.decode().then(() => img.naturalWidth > 0)));
+ }
+ results.push('Property Maintenance uses the water heater in the slide and thumbnail at 1440px and 390px; hero retains its source');
  const requestLinks = page.locator('.service-request-link');
  assert.deepEqual((await requestLinks.allTextContents()).map(text => text.trim()), ['Request Repair','Request Remodel','Request Renovation']);
  assert.equal(await page.locator('.site-footer').getByText(/and rental services/i).count(), 0);
